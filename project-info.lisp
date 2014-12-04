@@ -68,13 +68,15 @@
           (let ((symbol (intern "GROVEL-FILE" package)))
             (export symbol package))))
       (unwind-protect
-           (loop with file-name = (pathname-name system-file)
-                 for form = (read stream nil stream)
-                 until (eq form stream)
-                 when (and (consp form)
-                           (string-equal (first form) "DEFSYSTEM")
-                           (string-equal (second form) file-name))
-                 return (defsystem-form-info form))
+           (handler-case
+               (loop with file-name = (pathname-name system-file)
+                     for form = (read stream nil stream)
+                     until (eq form stream)
+                     when (and (consp form)
+                               (string-equal (first form) "DEFSYSTEM")
+                               (string-equal (second form) file-name))
+                     return (defsystem-form-info form))
+             (sb-int:simple-reader-error () nil))
         (unless cffi-grovel-p
           (delete-package '#:cffi-grovel))))))
 
