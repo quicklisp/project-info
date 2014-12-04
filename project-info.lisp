@@ -1,13 +1,12 @@
 ;;;; project-info.lisp
 
-(defpackage #:project-info
-  (:use #:cl))
-
 (in-package #:project-info)
 
 (defparameter *guess-website-patterns*
   '(("//github.com/(.*)\\.git" "https://github.com/" 0 "/")
+    ("//github.com/(.*)$" "https://github.com/" 0 "/")
     ("//mr.gy/(.*?)/(.*?)/" "http://mr.gy/" 0 "/" 1 "/")
+    ("(common-lisp\\.net/projects?/.*?/)" "http://" 0)
     ("^(.*bitbucket.*)$" 0)))
 
 (defun substitute-if-matches (regex target substitution)
@@ -59,6 +58,7 @@
   (with-open-file (stream system-file)
     (let* ((*load-truename* (truename system-file))
            (*load-pathname* *load-truename*)
+           (*read-eval* nil)
            (*default-pathname-defaults*
             (make-pathname :name nil :type nil :version nil
                            :defaults *load-truename*))
